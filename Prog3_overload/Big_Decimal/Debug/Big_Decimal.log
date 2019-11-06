@@ -1,0 +1,4 @@
+﻿  BD.cpp
+d:\masha\!!!!мифи\лабы инфа\третий семестр\prog3_overload\big_decimal\bd.cpp(30): warning C4715: Big_Decimal::Complement_Code: значение возвращается не при всех путях выполнения
+d:\masha\!!!!мифи\лабы инфа\третий семестр\prog3_overload\big_decimal\bd.cpp(134): warning C4715: Big_Decimal::String_To_Big_Decimal: значение возвращается не при всех путях выполнения
+  Big_Decimal.vcxproj -> D:\MASHA\!!!!МИФИ\лабы инфа\третий семестр\Prog3_overload\Debug\Big_Decimal.lib

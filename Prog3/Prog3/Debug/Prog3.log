@@ -1,0 +1,3 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: промежуточный каталог (Debug\) содержит файлы, которые используются совместно с другим проектом (Big_Decimal.vcxproj).  Это может привести к ошибкам очистки и перестроения.
+  Prog3.cpp
+  Prog3.vcxproj -> D:\MASHA\!!!!МИФИ\лабы инфа\третий семестр\Prog3\Debug\Prog3.exe
