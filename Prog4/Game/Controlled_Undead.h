@@ -8,4 +8,5 @@ public:
 	Controlled_Undead(int ord = stand) : Undead() { order = ord; }
 	int get_order() { return order; }
 	int set_order(int ord) { order = ord;}
+	virtual int get_type_undead() { return controlled; }
 };

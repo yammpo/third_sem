@@ -1,5 +1,7 @@
 #pragma once
 #include "Skill.h"
+#include "Alive_Enemy.h"
+#include "Controlled_Undead.h"
 class Necromancy : public Skill {
 private:
 	int k; // коэффициент
@@ -11,4 +13,5 @@ public:
 	int get_level_to_open() { return level_to_open; }
 	void set_level_to_open(int l) { level_to_open = l; }
 	virtual int get_type() { return necromancy; }
+	Controlled_Undead* create_undead(Alive_Enemy);
 };

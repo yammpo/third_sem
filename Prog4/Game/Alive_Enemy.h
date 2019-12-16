@@ -1,6 +1,6 @@
 #pragma once
 #include "Enemy.h"
-#include "Undead.h"
+//#include "Undead.h"
 class Alive_Enemy : public Enemy {
 private:
 	int curse_damage;
@@ -16,5 +16,4 @@ public:
 		if (state == false) return dead;
 		else return alive;
 	}
-	Undead create_undead(); // превратить мёртвого врага в нежить. может это лучше не здесь?
 };

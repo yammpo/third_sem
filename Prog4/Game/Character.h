@@ -1,6 +1,7 @@
 #pragma once
 #include "Skill_Table.h"
 #include <string>
+#include <fstream>
 //enum go { step_ok, end_of_field, no_step_wall, no_step_closed_door, end_of_levels };
 class Character {
 private:
@@ -40,7 +41,7 @@ public:
 	//character.increase_level() ?
 	void to_be_damaged(int dam) { HP = HP - dam ; }// принять урон от врага
 	Skill_Table get_skill_table() { return skill_table; }
-	void read_skill_table(std::string); // имя файла
+	void read_skill_table(std::string, std::string, std::string); // имя файла
 	void read_characteristics(std::string);// имя файла
 	void read_all(std::string);
 	//int use_skill(char, int); // принимает вверх вниз вправо влево

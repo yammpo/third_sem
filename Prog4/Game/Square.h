@@ -1,5 +1,5 @@
 #pragma once
-enum type { stairs_up, stairs_down, flooor, wall, opened_door, closed_door };
+enum type { stairs_up, stairs_down, flooor, wall, opened_door, closed_door, winner };
 class Square {
 public:
 	Square() {};

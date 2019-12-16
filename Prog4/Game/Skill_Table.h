@@ -5,6 +5,8 @@
 #include "Curse.h"
 #include "Pseudovector.h"
 #include <vector>
+#include <fstream>
+#include <iostream>
 class Skill_Table {
 private:
 	std::vector<Skill*> skills;
@@ -16,6 +18,8 @@ public:
 	Skill* get_skill(int i) { return skills[i]; }
 	//int change_skill();
 	int get_n() { return n; }
-	int add_skill();// из файла чтобы считывать и добавлять
+	void read_skills(std::string, std::string, std::string);
+	// отдельные файлы для иссушения, некромантии и проклятия
 	// int study_skill();// поиск по названию
+	void show_skills();
 };

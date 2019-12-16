@@ -3,15 +3,15 @@
 #include <string>
 class Curse : public Skill {
 private:
-	std::string spell;
+	//std::string spell;
 	int damage;
-	bool effect;
+	bool effect; // 0 - false, 1 - true i guess))))
 	int level_to_open; // уровень, с которого доступно данное конкретное умение
 public:
-	Curse(std::string s = "spell", int dam = 5, bool e = false, int lvl = 0) : Skill() 
-	{ level_to_open = lvl; damage = dam; effect = e; spell = s;}
-	std::string get_spell() {return spell; }
-	void set_spell(std::string s) { spell = s; }
+	Curse( int dam = 5, bool e = false, int lvl = 0) : Skill() 
+	{ level_to_open = lvl; damage = dam; effect = e; }
+	//std::string get_spell() {return spell; }
+	//void set_spell(std::string s) { spell = s; }
 	int get_damage() {return damage; }
 	void set_damage(int dm) { damage = dm; }
 	int get_level_to_open() { return level_to_open; }

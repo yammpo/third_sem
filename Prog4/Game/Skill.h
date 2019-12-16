@@ -7,7 +7,7 @@ protected:
 	Skill* parent_skill;
 	int mana_to_use;
 public:
-	Skill(std::string s = "name", Skill* sk = nullptr, int m = 1)
+	Skill(std::string s = "name", Skill* sk = nullptr, int m = 0)
 	{name = s; parent_skill = sk; mana_to_use = m;}
 	std::string get_name() { return name; }
 	Skill* get_parent_skill() { return parent_skill; }
