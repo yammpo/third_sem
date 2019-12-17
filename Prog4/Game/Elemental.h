@@ -6,6 +6,7 @@ protected:
 	Enemy* type;
 public:
 	Elemental(Enemy* tp = new Alive_Enemy()) : Enemy() { type = tp; }//очень сомневаюсь 
+	virtual ~Elemental() { delete[] type; }
 	Enemy* get_type_en() { return type; }
 	void set_type(Enemy* en) {type = en;}
 	Enemy* create_new_enemy(); // добавлять нового врага в массив врагов

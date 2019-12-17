@@ -21,8 +21,9 @@ int main(){
 	std::cout << "o - open a door, c - close a door" << std::endl;
 	std::cout << "t - show skill table (to choose a skill to use)" << std::endl;
 	std::cout << "v - show info about enemies" << std::endl;
-	std::cout << "p - exit" << std::endl;
-	// + сохраниться/ закончить/ начать сначала бла бла
+	std::cout << "u - show info about controlled undeads" << std::endl;
+	std::cout << "b - start from the begining, z - save, x - start from saving, p - exit," << std::endl;
+
 	char choise;
 	do {
 		std::cin >> choise;
@@ -41,6 +42,7 @@ int main(){
 			std::cout << "t - show skill table (to choose a skill to use)" << std::endl;
 			std::cout << "v - show info about enemies" << std::endl;
 			std::cout << "u - show info about controlled undeads" << std::endl;
+			std::cout << "b - start from the begining, z - save, x - start from saving, p - exit," << std::endl;
 		}
 		else if (choise == 't') {
 			D.show_skill_table();
@@ -69,6 +71,18 @@ int main(){
 		}
 		else if (choise == 'v') D.show_enemies(); 
 		else if (choise == 'u') D.show_controlled_undead();
+		else if (choise == 'z') {
+			D.save_character();
+			D.save_levels();
+		}
+		else if (choise == 'b') {
+			D.read_levels();
+			D.read_character();
+		}
+		else if (choise == 'x') {
+			D.read_saved_character();
+			D.read_saved_levels();
+		}
 		else std::cout << "no such command" << std::endl;
 	} while (choise != 'p');
 	return 0;

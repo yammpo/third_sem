@@ -1,6 +1,8 @@
 #pragma once
 #include "Skill.h"
 #include <string>
+#include "Enemy.h"
+#include "Alive_Enemy.h"
 class Curse : public Skill {
 private:
 	//std::string spell;
@@ -10,6 +12,7 @@ private:
 public:
 	Curse( int dam = 5, bool e = false, int lvl = 0) : Skill() 
 	{ level_to_open = lvl; damage = dam; effect = e; }
+	~Curse() {};
 	//std::string get_spell() {return spell; }
 	//void set_spell(std::string s) { spell = s; }
 	int get_damage() {return damage; }
@@ -19,5 +22,5 @@ public:
 	bool get_effect() { return effect; }
 	void set_effect(bool e) { effect = e; }
 	virtual int get_type() { return curse; }
-	int residual_effect(); //какая-то математическая функция
+	void damn(Enemy*);
 };

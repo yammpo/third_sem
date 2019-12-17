@@ -5,5 +5,5 @@ public:
 	Square() {};
 	virtual int get_type() = 0;// squares[i][j].get_type()
 	//virtual bool go() = 0; // мне кажется это лучше пусть геттайпом определяется
-	virtual ~Square() {};
+	virtual ~Square() = 0 {};
 };

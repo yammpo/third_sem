@@ -47,6 +47,19 @@ void Character::read_characteristics(std::string way) {
 	}
 	characteristics.close();
 }
+void Character::save_characteristics(std::string way) {
+	std::ofstream characteristics(way);
+	characteristics << x << std::endl;
+	characteristics << y << std::endl;
+	characteristics << max_mana << std::endl;
+	characteristics << mana << std::endl;
+	characteristics << max_HP << std::endl;
+	characteristics << HP << std::endl;
+	characteristics << experience << std::endl;
+	characteristics << level << std::endl;
+	characteristics << max_controlled_undead << std::endl;
+	characteristics.close();
+}
 void Character::read_skill_table(std::string way1, std::string way2, std::string way3) {
 	skill_table.read_skills(way1, way2, way3);
 }

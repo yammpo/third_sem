@@ -14,6 +14,7 @@ private:
 	int n;
 public:
 	Skill_Table(int nn = 0);
+	~Skill_Table() { skills.clear(); }
 	std::vector<Skill*> get_skills() { return skills; }
 	Skill* get_skill(int i) { return skills[i]; }
 	//int change_skill();

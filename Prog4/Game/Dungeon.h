@@ -19,6 +19,7 @@ private:
 	int n; // количество уровней
 public:
 	Dungeon(int nn = 0);
+	~Dungeon() { levels.clear(); }//character сам удаляется?
 	Character get_character() { return character; }
 	int get_level_number() { return level_number; }
 	int get_n() { return n; }
@@ -27,6 +28,10 @@ public:
 	//void read_all(); // вызывает read_levels & read_character
 	void read_levels();
 	void read_character();
+	void save_levels();
+	void save_character();
+	void read_saved_levels();
+	void read_saved_character();
 	void go_enemies();// вызывает go для всех врагов
 	int check_step(int, int, int, char);
 	int go_character(char);

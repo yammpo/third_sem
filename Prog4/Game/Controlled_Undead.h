@@ -6,7 +6,9 @@ private:
 	int order;// двигаться стоять атаковать
 public:
 	Controlled_Undead(int ord = stand) : Undead() { order = ord; }
+	~Controlled_Undead() {};
 	int get_order() { return order; }
-	int set_order(int ord) { order = ord;}
+	void set_order(int ord) { order = ord;}
+	virtual int get_type() { return controlled_undead; }
 	virtual int get_type_undead() { return controlled; }
 };

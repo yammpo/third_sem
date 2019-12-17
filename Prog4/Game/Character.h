@@ -18,6 +18,7 @@ private:
 public:
 	Character(int x_ = 0, int y_ = 0, int max_mana_ = 10, int mana_ = 10, int max_HP_ = 10,
 		int HP_ = 10, int experience_ = 0, int level_ = 0, int max_controlled_undead_ = 10);
+	~Character() {} //?
 	int get_x() { return x; }
 	int get_y() { return y; }
 	void set_y(int yy) { y = yy; }
@@ -27,7 +28,13 @@ public:
 	int get_max_HP() { return max_HP; }
 	int get_HP() { return HP; }
 	int get_experience() { return experience; }
-	int get_level() { return level; }
+	int get_level() { 
+		if (experience >= 10) {
+			experience = 0;
+			level++;
+		}
+		return level; 
+	}
 	int get_max_controlled_undead() { return max_controlled_undead; }
 	void set_max_mana(int mm) { max_mana = mm; }// сеттеры
 	void set_mana(int mm) { mana = mm; }
@@ -42,7 +49,9 @@ public:
 	void to_be_damaged(int dam) { HP = HP - dam ; }// принять урон от врага
 	Skill_Table get_skill_table() { return skill_table; }
 	void read_skill_table(std::string, std::string, std::string); // имя файла
+	void save_skill_table(std::string, std::string, std::string);
 	void read_characteristics(std::string);// имя файла
+	void save_characteristics(std::string);
 	void read_all(std::string);
 	//int use_skill(char, int); // принимает вверх вниз вправо влево
 	//(то есть на какого врага) и индекс, то есть какое именно умение из таблицы умений юзать

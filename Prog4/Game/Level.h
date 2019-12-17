@@ -24,6 +24,7 @@ private:
 	// в принципе ширину и высоту тогда можно тоже не хранить
 public:
 	Level(int hh = 0, int ww = 0, int enms = 0);// высота, ширина и количество врагов
+	~Level();
 	int get_h() { return h; }
 	int get_w() { return w; }
 	void set_h(int hh) { h = hh; }
@@ -35,7 +36,9 @@ public:
 	void set_enemy(Enemy *en, int i) { enemies[i] = en; }
 	//Enemy* get_enemy(int i) { return enemies[i]; }
 	void read_squares(std::string); // заполняются squares из файла данного уровня
-	void read_enemies(std::string); // расставляются враги
+	void save_squares(std::string);
+	void read_enemies(std::string); 
+	void save_enemies(std::string);
 	void show_enemies();
 	void show_controlled_undead();
 };

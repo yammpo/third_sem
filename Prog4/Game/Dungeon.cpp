@@ -173,6 +173,24 @@ int Dungeon::check_enemy(int k, int i, int j, int index) {
 		}
 		else return cant_be_used_to_this_enemy;
 	}
+	if (character.get_skill_table().get_skills()[index]->get_type() == curse) {
+		if ((type == dead) || (type == controlled_undead)) return cant_be_used_to_this_enemy;
+		Skill* skill = character.get_skill_table().get_skills()[index];
+		Curse* curse = dynamic_cast<Curse*>(skill);
+		if (character.get_level() < curse->get_level_to_open()) return level;
+		if (character.get_mana() < curse->get_mana()) return mana;
+		character.set_mana(character.get_mana() - curse->get_mana());
+		std::vector<Enemy*> enemies = levels[k].get_enemies();
+		Enemy *enemy = enemies[ch];
+		curse->damn(enemy);
+		if (enemy->get_HP() <= 0) {
+			enemies.erase(enemies.begin() + ch);
+			levels[k].set_enemies(enemies);
+			character.set_experience(enemy->get_experience());
+		}
+		else levels[k].set_enemy(enemy, ch);
+		return used_ok;
+	}
 }
 int Dungeon::use_skill(char c, int index) {//сначала вводится с, потом index
 	if (c == 'w') return check_enemy(level_number, character.get_y() - 1, character.get_x(), index);
@@ -187,6 +205,12 @@ void Dungeon::read_character() {
 		("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Draining.txt",
 		"D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Necromancy.txt",
 		"D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Curse.txt");
+}
+void Dungeon::save_character() {
+	character.save_characteristics("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Character_Saved.txt");
+}
+void Dungeon::read_saved_character() {
+	character.read_characteristics("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Character_Saved.txt");
 }
 
 void Dungeon::read_levels() {
@@ -208,6 +232,22 @@ void Dungeon::read_levels() {
 	levels[1].read_enemies("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_2_Enemies.txt");
 	levels[2].read_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_3_Squares.txt");
 	levels[2].read_enemies("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_3_Enemies.txt");
+}
+void Dungeon::read_saved_levels() {
+	levels[0].read_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_1_Squares_Saved.txt");
+	levels[0].read_enemies("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_1_Enemies_Saved.txt");
+	levels[1].read_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_2_Squares_Saved.txt");
+	levels[1].read_enemies("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_2_Enemies_Saved.txt");
+	levels[2].read_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_3_Squares_Saved.txt");
+	levels[2].read_enemies("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_3_Enemies_Saved.txt");
+}
+void Dungeon::save_levels() {
+	levels[0].save_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_1_Squares_Saved.txt");
+	levels[0].save_enemies("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_1_Enemies_Saved.txt");
+	levels[1].save_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_2_Squares_Saved.txt");
+	levels[1].save_enemies("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_2_Enemies_Saved.txt");
+	levels[2].save_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_3_Squares_Saved.txt");
+	levels[2].save_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_3_Enemies_Saved.txt");
 }
 void Dungeon::show_level(int i) {//текущий, не в level так как нужны координаты персонажа
 	Level lev = levels[i];
@@ -232,12 +272,8 @@ void Dungeon::show_level(int i) {//текущий, не в level так как �
 				if ((enemies[tmp]->get_x() == j) && (enemies[tmp]->get_y() == i)) {
 					if (enemies[tmp]->get_type() == alive) std::cout << "a ";
 					if (enemies[tmp]->get_type() == dead) std::cout << "b ";
-					if (enemies[tmp]->get_type() == undead) {
-						Enemy* enemy = enemies[tmp];
-						Undead* undead = dynamic_cast<Undead*>(enemy);
-						if (undead->get_type_undead() == controlled) std::cout << "1 ";
-						else std::cout << "c ";
-					}
+					if (enemies[tmp]->get_type() == controlled_undead) std::cout << "1 ";
+					if (enemies[tmp]->get_type() == undead) std::cout << "c ";
 					if (enemies[tmp]->get_type() == elemental) std::cout << "d ";
 					flag = false;
 				}

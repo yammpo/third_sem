@@ -22,9 +22,17 @@ Level::Level(int hh, int ww, int enms) {
 		enemies.push_back(enemy);
 	}
 }
+Level::~Level() {
+	enemies.clear();
+	for (int i = 0; i < squares.size(); i++) squares[i].clear();
+	squares.clear();
+}
 void Level::read_squares(std::string way) {
 	std::ifstream lev(way);
 	if (!lev.is_open()) throw std::runtime_error("File can't open!");
+	for (int j = 0; j < w; j++)
+		if (!squares[j].empty()) squares[j].clear();
+	if (!squares.empty()) squares.clear();
 	int hh, ww;
 	lev >> hh;
 	h = hh;
@@ -70,11 +78,32 @@ void Level::read_squares(std::string way) {
 	}
 	lev.close();
 }
+void Level::save_squares(std::string way) {
+	std::ofstream lev(way);
+	lev << h << std::endl;
+	lev << w << std::endl;
+	squares.reserve(h);
+	for (int i = 0; i < h; i++) {
+		for (int j = 0; j < w; j++) {
+			int type = squares[i][j]->get_type();
+			if (type == flooor) lev << ". ";
+			if (type == wall) lev << "# ";
+			if (type == stairs_down) lev << "> ";
+			if (type == stairs_up) lev << "< ";
+			if (type == opened_door) lev << "/ ";
+			if (type == closed_door) lev << "+ ";
+			if (type == winner) lev << "$ ";
+		}
+		lev << std::endl;
+	}
+	lev.close();
+}
 void Level::read_enemies(std::string way) {
 	std::ifstream enem(way);
 	if (!enem.is_open()) throw std::runtime_error("File can't open!");
 	int number_of_enemies;
 	enem >> number_of_enemies;
+	if (!enemies.empty()) enemies.clear();
 	enemies.reserve(number_of_enemies);
 	//тип врага(живой, нежить, элементаль, супер нежить), 
 	//имя, max HP, HP, damage, hit, x, y, expirience, status
@@ -119,6 +148,25 @@ void Level::read_enemies(std::string way) {
 			enemy->set_status(status);
 			undead->set_name_of_alive(name_alive);
 		}
+		if (type == "controlled") {
+			enemy = new Controlled_Undead();
+			Controlled_Undead *controlled = dynamic_cast<Controlled_Undead*>(enemy);
+			std::string name_alive;
+			int order;
+			enem >> name_alive;
+			enem >> order;
+			enemy->set_name(name); //сделать сеттеры не войд мб
+			enemy->set_max_HP(max_hp);
+			enemy->set_HP(hp);
+			enemy->set_damage(damage);
+			enemy->set_hit(hit);
+			enemy->set_x(x);
+			enemy->set_y(y);
+			enemy->set_experience(experience);
+			enemy->set_status(status);
+			controlled->set_name_of_alive(name_alive);
+			controlled->set_order(order);
+		}
 		if (type == "elemental") { 
 			enemy = new Elemental();
 			Elemental *elemental = dynamic_cast<Elemental*>(enemy);
@@ -140,15 +188,46 @@ void Level::read_enemies(std::string way) {
 	}
 	enem.close();
 }
+void Level::save_enemies(std::string way) {
+	std::ofstream enem(way);
+	enem << enemies.size() << std::endl;
+	for (int i = 0; i < enemies.size(); i++) {
+		if ((enemies[i]->get_type() == alive) || (enemies[i]->get_type() == dead))
+			enem << "alive ";
+		if (enemies[i]->get_type() == undead) enem << "undead ";
+		if (enemies[i]->get_type() == controlled_undead) enem << "controlled ";
+		if (enemies[i]->get_type() == elemental) enem << "elemental ";
+		enem << enemies[i]->get_name() << " "
+			<< enemies[i]->get_max_HP() << " " << enemies[i]->get_HP() << " "
+			<< enemies[i]->get_damage() << " " << enemies[i]->get_hit() << " "
+			<< enemies[i]->get_x() << " " << enemies[i]->get_y() << " "
+			<< enemies[i]->get_experience() << " " << enemies[i]->get_status() << " ";
+		if ((enemies[i]->get_type() == alive) || (enemies[i]->get_type() == dead)) {
+			Alive_Enemy *alive_enemy = dynamic_cast<Alive_Enemy*>(enemies[i]);
+			enem << alive_enemy->get_curse_damage() << " " << alive_enemy->get_state();
+		}
+		if (enemies[i]->get_type() == elemental) {
+			Elemental *elemental = dynamic_cast<Elemental*>(enemies[i]);
+			Enemy *enemy = elemental->get_type_en();
+			// узнать индекс по указателю
+			for (int j = 0; j < enemies.size(); j++) {
+				if (enemies[j] == enemy) enem << j;
+			} // если нет надо тоже че-то записать типа -1 или как-то обозначить что он больше никого не создает
+		}
+		if (enemies[i]->get_type() == undead) {
+			Undead *undead = dynamic_cast<Undead*>(enemies[i]);
+			enem << undead->get_name_of_alive();
+		}
+		if (enemies[i]->get_type() == controlled_undead) {
+			Controlled_Undead *controlled = dynamic_cast<Controlled_Undead*>(enemies[i]);
+			enem << controlled->get_name_of_alive() << " " << controlled->get_order();
+		}
+		enem << std::endl;
+	}
+}
 void Level::show_enemies() {
 	for (int i = 0; i < enemies.size(); i++) {
-		int fl = 1;
-		if (enemies[i]->get_type() == undead) {
-			Enemy* enemy = enemies[i];
-			Undead* undead = dynamic_cast<Undead*>(enemy);
-			if (undead->get_type_undead() == controlled) fl = 0;
-		}
-		if (fl) {
+		if (enemies[i]->get_type() != controlled_undead) {
 			//std::cout << i << " " << enemies[i]->get_x() << " " << enemies[i]->get_y();
 			std::cout << "type: ";
 			//Enemy *enemy = enemies[i];
@@ -189,24 +268,20 @@ void Level::show_enemies() {
 }
 void Level::show_controlled_undead() {
 	for (int i = 0; i < enemies.size(); i++) {
-		if (enemies[i]->get_type() == undead) {
+		if (enemies[i]->get_type() == controlled_undead) {
 			Enemy* enemy = enemies[i];
-			Undead* undead = dynamic_cast<Undead*>(enemy);
-			if (undead->get_type_undead() == controlled) {
-				Controlled_Undead *contrud = dynamic_cast<Controlled_Undead*>(undead);
-				std::cout << "name: " << enemies[i]->get_name();
-				std::cout << " name of alive: " << contrud->get_name_of_alive() << std::endl;
-				std::cout << "max HP: " << enemies[i]->get_max_HP();
-				std::cout << " HP: " << enemies[i]->get_HP() << std::endl;
-				std::cout << "damage: " << enemies[i]->get_damage();
-				std::cout << " hit: " << enemies[i]->get_hit();
-				std::cout << " x: " << enemies[i]->get_x();
-				std::cout << " y: " << enemies[i]->get_y();
-				std::cout << " status: " << enemies[i]->get_status();//?
-				std::cout << " order: " << contrud->get_order() << std::endl;
-				std::cout << " name of alive: " << contrud->get_name_of_alive() << std::endl;
-			}
-			std::cout << std::endl;
+			Controlled_Undead *contrud = dynamic_cast<Controlled_Undead*>(enemy);
+			std::cout << "name: " << enemies[i]->get_name();
+			std::cout << " name of alive: " << contrud->get_name_of_alive() << std::endl;
+			std::cout << "max HP: " << enemies[i]->get_max_HP();
+			std::cout << " HP: " << enemies[i]->get_HP() << std::endl;
+			std::cout << "damage: " << enemies[i]->get_damage();
+			std::cout << " hit: " << enemies[i]->get_hit();
+			std::cout << " x: " << enemies[i]->get_x();
+			std::cout << " y: " << enemies[i]->get_y();
+			std::cout << " status: " << enemies[i]->get_status();//?
+			std::cout << " order: " << contrud->get_order() << std::endl;
 		}
+	std::cout << std::endl;
 	}
 }

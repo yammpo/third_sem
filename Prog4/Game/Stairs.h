@@ -9,6 +9,5 @@ public:
 	virtual int get_type();
 	bool get_updown() { return updown; }
 	void set_updown(bool ud) { updown = ud; }
-	//virtual bool go();
-	//~Stairs() {};
+	~Stairs() {};
 };
