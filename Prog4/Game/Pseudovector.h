@@ -27,6 +27,7 @@ namespace Game {
 		void clear();
 		void remove(const int &i);
 		void resize(const int &n);
+		int get_size() { return size; }
 		~Vec<T>(void);
 	};
 

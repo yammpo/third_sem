@@ -19,6 +19,8 @@ protected:
 public:
 	Enemy(int x_ = 0, int y_ = 0, int damage_ = 10, int hit_ = 5, int max_HP_ = 10,
 		int HP_ = 10, int experience_ = 1, bool status_ = false, std::string name_ = "enemy");
+	//Enemy& operator = (const Enemy&); 
+	//Enemy& operator = (Enemy&&);
 	virtual ~Enemy() = 0 {};
 	int get_x() { return x; }
 	int get_y() { return y; }

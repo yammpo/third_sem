@@ -6,8 +6,8 @@ private:
 	bool status;
 public:
 	Door(bool st = 0) : status(st) {};
-	void open() { status = opened; }
-	void close() { status = closed; }
+	void open_door() { status = opened; }
+	void close_door() { status = closed; }
 	bool get_status() {return status; } // нафига если это делает геттайп?
 	void set_status(bool s) { status = s; }
 	virtual int get_type() {

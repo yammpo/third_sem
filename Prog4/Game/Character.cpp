@@ -57,7 +57,7 @@ void Character::save_characteristics(std::string way) {
 	characteristics << HP << std::endl;
 	characteristics << experience << std::endl;
 	characteristics << level << std::endl;
-	characteristics << max_controlled_undead << std::endl;
+	characteristics << max_controlled_undead;
 	characteristics.close();
 }
 void Character::read_skill_table(std::string way1, std::string way2, std::string way3) {

@@ -14,8 +14,17 @@ private:
 	int n;
 public:
 	Skill_Table(int nn = 0);
-	~Skill_Table() { skills.clear(); }
+	~Skill_Table() { 
+	//for (int i = 0; i < skills.size(); i++) delete[] skills[i];
+	//for (auto p : skills) delete p;
+		skills.clear();
+	}
+	Skill_Table& operator = (const Skill_Table&);
+	Skill_Table& operator = (Skill_Table&&);
+	Skill_Table(const Skill_Table&);
+	Skill_Table(Skill_Table&&);
 	std::vector<Skill*> get_skills() { return skills; }
+	//Game::Vec<Skill*> get_skills() { return skills; }
 	Skill* get_skill(int i) { return skills[i]; }
 	//int change_skill();
 	int get_n() { return n; }

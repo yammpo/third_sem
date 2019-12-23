@@ -18,7 +18,9 @@ private:
 public:
 	Character(int x_ = 0, int y_ = 0, int max_mana_ = 10, int mana_ = 10, int max_HP_ = 10,
 		int HP_ = 10, int experience_ = 0, int level_ = 0, int max_controlled_undead_ = 10);
-	~Character() {} //?
+	~Character() {
+	//	delete[] skill_table;
+	} //?
 	int get_x() { return x; }
 	int get_y() { return y; }
 	void set_y(int yy) { y = yy; }
@@ -52,7 +54,6 @@ public:
 	void save_skill_table(std::string, std::string, std::string);
 	void read_characteristics(std::string);// имя файла
 	void save_characteristics(std::string);
-	void read_all(std::string);
 	//int use_skill(char, int); // принимает вверх вниз вправо влево
 	//(то есть на какого врага) и индекс, то есть какое именно умение из таблицы умений юзать
 	//может сделать разные для всех типов умений?

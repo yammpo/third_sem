@@ -22,14 +22,21 @@ int main(){
 	std::cout << "t - show skill table (to choose a skill to use)" << std::endl;
 	std::cout << "v - show info about enemies" << std::endl;
 	std::cout << "u - show info about controlled undeads" << std::endl;
-	std::cout << "b - start from the begining, z - save, x - start from saving, p - exit," << std::endl;
-
+	std::cout << "b - start from the begining of level, z - save, x - start from saving, p - exit," << std::endl;
+	//std::cout << "y - go enemies" << std::endl;
 	char choise;
 	do {
 		std::cin >> choise;
+		if (!(std::cin.good())) {
+			std::cout << "Invalid value, try again\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
 		//cin good проверить чар ли вообще ввели
 		if ((choise == 'w') || (choise == 's') || (choise == 'a') || (choise == 'd')) {
-			int i = D.go_character(choise);
+			bool flag = true;
+			int i = D.go_character(choise, flag);
+			if (flag) D.go_enemies();
 			//if (i) std::cout << go_errors[i - 1] << std::endl;
 			system("cls");
 			std::cout << "level: " << D.get_level_number() + 1 << std::endl;
@@ -43,6 +50,7 @@ int main(){
 			std::cout << "v - show info about enemies" << std::endl;
 			std::cout << "u - show info about controlled undeads" << std::endl;
 			std::cout << "b - start from the begining, z - save, x - start from saving, p - exit," << std::endl;
+			//std::cout << "y - go enemies" << std::endl;
 		}
 		else if (choise == 't') {
 			D.show_skill_table();
@@ -52,22 +60,40 @@ int main(){
 			int i;
 			std::cin >> c;
 			std::cin >> i;
+			if (!(std::cin.good())) {
+				std::cout << "error: invalid value";
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			}
 			int t = D.use_skill(c, i); // проверить на ошибку ввода
 			if (t) std::cout << skills_errors[t - 1] << std::endl << std::endl;
+			D.go_enemies();
 		}
 		else if (choise == 'o') {
 			char c;
 			std::cout << "which door? (w, s, a, d)" << std::endl;
-			std::cin >> c;// проверку на правильность
-			int i = D.change_door(c, open);
+			std::cin >> c;
+			if (!(std::cin.good())) {
+				std::cout << "error: invalid value";
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			}
+			int i = D.change_door(c, to_open);
 			if (i) std::cout << door_errors[i - 1] << std::endl << std::endl;
+			D.go_enemies();
 		}
 		else if (choise == 'c') {
 			char c;
 			std::cout << "which door? (w, s, a, d)" << std::endl;
 			std::cin >> c;// проверку на правильность
-			int i = D.change_door(c, close);
+			if (!(std::cin.good())) {
+				std::cout << "error: invalid value";
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			}
+			int i = D.change_door(c, to_close);
 			if (i) std::cout << door_errors[i - 1] << std::endl << std::endl;
+			D.go_enemies();
 		}
 		else if (choise == 'v') D.show_enemies(); 
 		else if (choise == 'u') D.show_controlled_undead();
@@ -83,6 +109,9 @@ int main(){
 			D.read_saved_character();
 			D.read_saved_levels();
 		}
+		//else if (choise == 'y') {
+		//	D.go_enemies();
+		//}
 		else std::cout << "no such command" << std::endl;
 	} while (choise != 'p');
 	return 0;

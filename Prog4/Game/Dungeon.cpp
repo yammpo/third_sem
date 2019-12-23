@@ -9,7 +9,7 @@ Dungeon::Dungeon(int nn) {
 		levels.push_back(level);
 	}
 }
-int Dungeon::check_step(int k, int j, int i, char c) { // i for y, j for x
+int Dungeon::check_step(int k, int j, int i, char c, bool& fl) { // i for y, j for x
 	if ((i < 0) || (i > levels[k].get_h() - 1)) return end_of_field;
 	if ((j < 0) || (j > levels[k].get_w() - 1)) return end_of_field;
 	std::vector<Enemy*> enemies = levels[k].get_enemies();
@@ -19,7 +19,7 @@ int Dungeon::check_step(int k, int j, int i, char c) { // i for y, j for x
 		if ((enemies[tmp]->get_x() == j) && (enemies[tmp]->get_y() == i))
 			return emeny;
 	}
-	int type = levels[k].get_square(i, j)->get_type();
+	int type = levels[k].get_squares()[i][j]->get_type();
 	if (type == winner) {
 		character.set_y(i);
 		character.set_x(j);
@@ -100,16 +100,17 @@ int Dungeon::check_step(int k, int j, int i, char c) { // i for y, j for x
 			level_number--;
 			character.set_y(i);
 			character.set_x(j);
+			fl = false;
 		}
 		else return end_of_levels;
 	}
 	return step_ok;
 };
-int Dungeon::go_character(char c) {
-	if (c == 'w') return check_step(level_number, character.get_x(), character.get_y() - 1, 'w');
-	if (c == 's') return check_step(level_number, character.get_x(), character.get_y() + 1, 's');
-	if (c == 'a') return check_step(level_number, character.get_x() - 1, character.get_y(), 'a');
-	if (c == 'd') return check_step(level_number, character.get_x() + 1, character.get_y(), 'd');
+int Dungeon::go_character(char c, bool& fl) {
+	if (c == 'w') return check_step(level_number, character.get_x(), character.get_y() - 1, 'w', fl);
+	if (c == 's') return check_step(level_number, character.get_x(), character.get_y() + 1, 's', fl);
+	if (c == 'a') return check_step(level_number, character.get_x() - 1, character.get_y(), 'a', fl);
+	if (c == 'd') return check_step(level_number, character.get_x() + 1, character.get_y(), 'd', fl);
 }
 int Dungeon::check_enemy(int k, int i, int j, int index) {
 	int type = empty;
@@ -124,12 +125,13 @@ int Dungeon::check_enemy(int k, int i, int j, int index) {
 	} 
 	if (type == empty) return no_enemy;
 	if (character.get_skill_table().get_skills()[index]->get_type() == draining) {
+	//if (character.get_skill_table().get_skill(index)->get_type() == draining) {
 		// пока что превращает только в здоровье, но надо сделать опцию выбора
 		if (type == dead) {
 			std::cout << "u want to increase mana (m) or hp (h)?" << std::endl;
 			char g;
 			std::cin >> g;
-			Skill* skill = character.get_skill_table().get_skills()[index];
+			Skill* skill = character.get_skill_table().get_skill(index);
 			Draining* draining = dynamic_cast<Draining*>(skill);
 			Enemy *enemy = levels[k].get_enemies()[ch];
 			Alive_Enemy *al_en = dynamic_cast<Alive_Enemy*>(enemy);
@@ -247,34 +249,34 @@ void Dungeon::save_levels() {
 	levels[1].save_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_2_Squares_Saved.txt");
 	levels[1].save_enemies("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_2_Enemies_Saved.txt");
 	levels[2].save_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_3_Squares_Saved.txt");
-	levels[2].save_squares("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_3_Enemies_Saved.txt");
+	levels[2].save_enemies("D:\\MASHA\\!!!!МИФИ\\лабы инфа\\третий семестр\\Prog4\\Game\\Level_3_Enemies_Saved.txt");
 }
-void Dungeon::show_level(int i) {//текущий, не в level так как нужны координаты персонажа
-	Level lev = levels[i];
+void Dungeon::show_level(int in) {//текущий, не в level так как нужны координаты персонажа
+	//Level lev = levels[i];
 	// расставить врагов!
 	// b - труп, a - живой, d - элементаль, c - нежить, 1 - твой
-	std::vector<std::vector<Square*>> squares = lev.get_squares();
-	std::vector<Enemy*> enemies = lev.get_enemies();
-	int h = lev.get_h();
-	int w = lev.get_w();
+	//std::vector<std::vector<Square*>> squares = lev.get_squares();
+	//std::vector<Enemy*> enemies = lev.get_enemies();
+	int h = levels[in].get_h();
+	int w = levels[in].get_w();
 	bool flag = true;
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
 			flag = true;
-			int type = squares[i][j]->get_type();
+			int type = levels[in].get_squares()[i][j]->get_type();
 			if ((character.get_x() == j) && (character.get_y() == i)) {
 				std::cout << "u ";
 				flag = false;
 			}
-			for (int tmp = 0; tmp < enemies.size(); tmp++) {
+			for (int tmp = 0; tmp < levels[in].get_enemies().size(); tmp++) {
 				// не очень хорошо, что каждый раз по всему массиву врагов проходимся
 				// надо как-то исключать тех, по которым уже прошлись
-				if ((enemies[tmp]->get_x() == j) && (enemies[tmp]->get_y() == i)) {
-					if (enemies[tmp]->get_type() == alive) std::cout << "a ";
-					if (enemies[tmp]->get_type() == dead) std::cout << "b ";
-					if (enemies[tmp]->get_type() == controlled_undead) std::cout << "1 ";
-					if (enemies[tmp]->get_type() == undead) std::cout << "c ";
-					if (enemies[tmp]->get_type() == elemental) std::cout << "d ";
+				if ((levels[in].get_enemies()[tmp]->get_x() == j) && (levels[in].get_enemies()[tmp]->get_y() == i)) {
+					if (levels[in].get_enemies()[tmp]->get_type() == alive) std::cout << "a ";
+					if (levels[in].get_enemies()[tmp]->get_type() == dead) std::cout << "b ";
+					if (levels[in].get_enemies()[tmp]->get_type() == controlled_undead) std::cout << "1 ";
+					if (levels[in].get_enemies()[tmp]->get_type() == undead) std::cout << "c ";
+					if (levels[in].get_enemies()[tmp]->get_type() == elemental) std::cout << "d ";
 					flag = false;
 				}
 			}
@@ -314,26 +316,29 @@ int Dungeon::check_door(int x, int y, bool fl) {
 	if ((y >= 0) && (y <= levels[level_number].get_h()) &&
 		(x >= 0) && (x <= levels[level_number].get_w())) {
 		Square *square = levels[level_number].get_square(y, x);
-		if ((square->get_type() == closed_door) && (fl == open)) {
+		if ((square->get_type() == closed_door) && (fl == to_open)) {
 			Door *door = dynamic_cast<Door*>(square);
-			door->open();// изменить в самой двери
+			door->open_door();// изменить в самой двери
 			return all_ok;
 		}
-		else if ((square->get_type() == opened_door) && (fl == close)) {
+		else if ((square->get_type() == opened_door) && (fl == to_close)) {
 			Door *door = dynamic_cast<Door*>(square);
-			door->close();
+			door->close_door();
 			return all_ok;
 		}
-		else if ((square->get_type() == opened_door) && (fl == open)) return already_opened; 
-		else if ((square->get_type() == closed_door) && (fl == close)) return already_closed;
+		else if ((square->get_type() == opened_door) && (fl == to_open)) return already_opened; 
+		else if ((square->get_type() == closed_door) && (fl == to_close)) return already_closed;
 		else return no_door;
 	}	
 	else return no_door;
 }
 int Dungeon::change_door(char c, bool fl) {
-	int x = character.get_x(), y = character.get_y();
-	if (c == 'w') return check_door(x, y - 1, fl);
-	if (c == 's') return check_door(x, y + 1, fl);
-	if (c == 'a') return check_door(x - 1, y, fl);
-	if (c == 'd') return check_door(x + 1, y, fl);
+	//int x = character.get_x(), y = character.get_y();
+	if (c == 'w') return check_door(character.get_x(), character.get_y() - 1, fl);
+	if (c == 's') return check_door(character.get_x(), character.get_y() + 1, fl);
+	if (c == 'a') return check_door(character.get_x() - 1, character.get_y(), fl);
+	if (c == 'd') return check_door(character.get_x() + 1, character.get_y(), fl);
+}
+void Dungeon::go_enemies() {
+	levels[level_number].go_enemy(character.get_x(), character.get_y());
 }

@@ -23,22 +23,98 @@ Level::Level(int hh, int ww, int enms) {
 	}
 }
 Level::~Level() {
-	enemies.clear();
-	for (int i = 0; i < squares.size(); i++) squares[i].clear();
-	squares.clear();
+	if (!enemies.empty()) {
+		//for (int i = 0; i < enemies.size(); i++) if (enemies[i]) delete enemies[i];
+		//for (auto p : enemies) delete p;
+		enemies.clear();
+	}
+	if (!squares.empty()) {
+		for (int i = 0; i < h; i++) {
+			//for (int j = 0; j < w; j++) if (squares[i][j]) delete[] squares[i][j];
+			squares[i].clear();
+		}
+		squares.clear();
+	}
+}
+Level& Level::operator = (const Level& lev) {
+	h = lev.h;
+	w = lev.w;
+	squares.reserve(h);
+	for (int i = 0; i < h; i++) {
+		std::vector<Square*> vec;
+		vec.reserve(w);
+		for (int j = 0; j < w; j++) {
+			Square *square = lev.squares[i][j];
+			vec.push_back(square);
+		}
+		squares.push_back(vec);
+	}
+	enemies.reserve(lev.enemies.size());
+	for (int i = 0; i < lev.enemies.size(); i++) {
+		Enemy *enemy = lev.enemies[i];
+		enemies.push_back(enemy);
+	}
+	return *this;
+}
+ Level::Level(const Level& lev) {
+	h = lev.h;
+	w = lev.w;
+	squares.reserve(h);
+	for (int i = 0; i < h; i++) {
+		std::vector<Square*> vec;
+		vec.reserve(w);
+		for (int j = 0; j < w; j++) {
+			Square *square = lev.squares[i][j];
+			vec.push_back(square);
+		}
+		squares.push_back(vec);
+	}
+	enemies.reserve(lev.enemies.size());
+	for (int i = 0; i < lev.enemies.size(); i++) {
+		Enemy *enemy = lev.enemies[i];
+		enemies.push_back(enemy);
+	}
+}
+Level& Level::operator = (Level&& lev) {
+	h = lev.h;
+	w = lev.w;
+	squares = lev.squares;
+	enemies = lev.enemies;
+	for (int i = 0; i < lev.enemies.size(); i++) delete[] lev.enemies[i];
+	lev.enemies.clear();
+	for (int i = 0; i < lev.h; i++) {
+		for (int j = 0; j < lev.w; j++) delete[] lev.squares[i][j];
+		lev.squares[i].clear();
+	}
+	lev.squares.clear();
+	return *this;
+}
+Level::Level(Level&& lev) {
+	h = lev.h;
+	w = lev.w;
+	squares = lev.squares;
+	enemies = lev.enemies;
+	for (int i = 0; i < lev.enemies.size(); i++) delete[] lev.enemies[i];
+	lev.enemies.clear();
+	for (int i = 0; i < lev.h; i++) {
+		for (int j = 0; j < lev.w; j++) delete[] lev.squares[i][j];
+		lev.squares[i].clear();
+	}
+	lev.squares.clear();
 }
 void Level::read_squares(std::string way) {
 	std::ifstream lev(way);
 	if (!lev.is_open()) throw std::runtime_error("File can't open!");
-	for (int j = 0; j < w; j++)
-		if (!squares[j].empty()) squares[j].clear();
+	for (int i = 0; i < h; i++) {
+		for (int j = 0; j < w; j++) if (squares[i][j]) delete[] squares[i][j];
+		if (!squares[i].empty()) squares[i].clear();
+	}
 	if (!squares.empty()) squares.clear();
 	int hh, ww;
 	lev >> hh;
 	h = hh;
 	lev >> ww;
 	w = ww;
-	//std::cout << w;
 	while (!lev.eof()) {
 		squares.reserve(h);
 		for (int i = 0; i < h; i++) {
@@ -82,28 +158,30 @@ void Level::save_squares(std::string way) {
 	std::ofstream lev(way);
 	lev << h << std::endl;
 	lev << w << std::endl;
-	squares.reserve(h);
+	//squares.reserve(h);
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
 			int type = squares[i][j]->get_type();
-			if (type == flooor) lev << ". ";
-			if (type == wall) lev << "# ";
-			if (type == stairs_down) lev << "> ";
-			if (type == stairs_up) lev << "< ";
-			if (type == opened_door) lev << "/ ";
-			if (type == closed_door) lev << "+ ";
-			if (type == winner) lev << "$ ";
+			if (type == flooor) { lev << "."; if (w - 1 > j)  lev << " "; }
+			if (type == wall) { lev << "#"; if (w - 1 > j)  lev << " "; }
+			if (type == stairs_down) { lev << ">"; if (w - 1 > j)  lev << " "; }
+			if (type == stairs_up) { lev << "<"; if (w - 1 > j)  lev << " "; }
+			if (type == opened_door) { lev << "/"; if (w - 1 > j)  lev << " "; }
+			if (type == closed_door) { lev << "+"; if (w - 1 > j)  lev << " "; }
+			if (type == winner) { lev << "$"; if (w - 1 > j)  lev << " "; }
 		}
-		lev << std::endl;
+		if (h - 1 > i ) lev << std::endl;
 	}
 	lev.close();
 }
 void Level::read_enemies(std::string way) {
 	std::ifstream enem(way);
+	for (int i = 0; i < enemies.size(); i++) if (enemies[i] != nullptr) delete[] enemies[i];
+	if (!enemies.empty()) enemies.clear(); 
 	if (!enem.is_open()) throw std::runtime_error("File can't open!");
 	int number_of_enemies;
 	enem >> number_of_enemies;
-	if (!enemies.empty()) enemies.clear();
+	//if (!enemies.empty()) enemies.clear();
 	enemies.reserve(number_of_enemies);
 	//тип врага(живой, нежить, элементаль, супер нежить), 
 	//им€, max HP, HP, damage, hit, x, y, expirience, status
@@ -190,7 +268,8 @@ void Level::read_enemies(std::string way) {
 }
 void Level::save_enemies(std::string way) {
 	std::ofstream enem(way);
-	enem << enemies.size() << std::endl;
+	if (enemies.size() > 0) enem << enemies.size() << std::endl;
+	else enem << enemies.size();
 	for (int i = 0; i < enemies.size(); i++) {
 		if ((enemies[i]->get_type() == alive) || (enemies[i]->get_type() == dead))
 			enem << "alive ";
@@ -222,7 +301,7 @@ void Level::save_enemies(std::string way) {
 			Controlled_Undead *controlled = dynamic_cast<Controlled_Undead*>(enemies[i]);
 			enem << controlled->get_name_of_alive() << " " << controlled->get_order();
 		}
-		enem << std::endl;
+		if (enemies.size() - 1 > i ) enem << std::endl;
 	}
 }
 void Level::show_enemies() {
@@ -283,5 +362,131 @@ void Level::show_controlled_undead() {
 			std::cout << " order: " << contrud->get_order() << std::endl;
 		}
 	std::cout << std::endl;
+	}
+}
+bool Level::check_wall(int y, int x) {
+	int type = squares[y][x]->get_type();
+	for (int i = 0; i < enemies.size(); i++) {
+		if ((enemies[i]->get_x() == x) && (enemies[i]->get_y() == y))
+			return the_wall;
+	}
+	//if (y == ch_y && x == ch_x) return the_wall;
+	if ((type == flooor) || (type == opened_door)) return the_blank;// про дверь подумать
+	//и если на клетке нет врагов(других?) и песонажа(ммм а персонажа то € где возьму)
+	//видимо нигде, но тогда могут быть проблемы с подконтрольной нежитью. ќ—“ќ–ќ∆Ќќ
+	else return the_wall;
+}
+std::vector<std::vector<int>> Level::squares_to_ints() {
+	std::vector<std::vector<int>> grid;
+	grid.reserve(h);
+	for (int i = 0; i < h; i++) {
+		std::vector<int> vec;
+		vec.reserve(w);
+		for (int j = 0; j < w; j++) {
+			int k;
+			if (check_wall(i, j) == the_wall) k = -1;
+			else k = -2;
+			vec.push_back(k);
+		}
+		grid.push_back(vec);
+	}
+	return grid;
+}
+bool Level::lee(int ax, int ay, int bx, int by, std::vector<int>&px, std::vector<int>&py)   // поиск пути из €чейки (ax, ay) в €чейку (bx, by)
+{
+	std::vector<std::vector<int>> grid = squares_to_ints();
+	// проверить не лежит ли ax, ay в окрестности bx, by
+	// если лежит никуда не идти (или атаковать)
+	int dx[4] = { 1, 0, -1, 0 };   // смещени€, соответствующие сосед€м €чейки
+	int dy[4] = { 0, 1, 0, -1 };   // справа, снизу, слева и сверху
+	int d, x, y, k;
+	int len;
+	for (int okr = 0; okr < 4; ++okr) {
+		int okry = by + dy[okr], okrx = bx + dx[okr];
+		if (okry >= 0 && okry < h && okrx >= 0 && okrx < w && okry == ay && okrx == ax)
+			return false;
+	}
+	//std::vector<int> px, py;
+	px.reserve(w*h);
+	py.reserve(w*h);
+	px.resize(w*h);
+	py.resize(w*h);
+	px.push_back(ax);
+	py.push_back(ay);
+	//int px[W * H], py[W * H];
+	bool stop;
+
+	//if ((grid[ay][ax] == WALL || grid[by][bx] == WALL)) return false;  // €чейка (ax, ay) или (bx, by) - стена
+
+	// распространение волны
+	d = 0;
+	grid[ay][ax] = 0;            // стартова€ €чейка помечена 0
+	do {
+		stop = true;               // предполагаем, что все свободные клетки уже помечены
+		for (y = 0; y < h; ++y)
+			for (x = 0; x < w; ++x)
+				if (grid[y][x] == d)                         // €чейка (x, y) помечена числом d
+				{
+					for (k = 0; k < 4; ++k)                    // проходим по всем непомеченным сосед€м
+					{
+						int iy = y + dy[k], ix = x + dx[k];
+						if (iy >= 0 && iy < h && ix >= 0 && ix < w &&
+							grid[iy][ix] == BLANK)
+						{
+							stop = false;              // найдены непомеченные клетки
+							grid[iy][ix] = d + 1;      // распростран€ем волну
+						}
+					}
+				}
+		d++;
+	} while (!stop && grid[by][bx] == BLANK);
+
+	if (grid[by][bx] == BLANK) return false;  // путь не найден
+
+	// восстановление пути
+	len = grid[by][bx];            // длина кратчайшего пути из (ax, ay) в (bx, by)
+	x = bx;
+	y = by;
+	d = len;
+	while (d > 0)
+	{
+		px.insert(px.begin() + d, x); // думаю можно только первый шаг записать
+		py.insert(py.begin() + d, y); // так как остальными € не пользуюсь
+		//px[d] = x;
+		//py[d] = y;                   // записываем €чейку (x, y) в путь
+		d--;
+		for (k = 0; k < 4; ++k)
+		{
+			int iy = y + dy[k], ix = x + dx[k];
+			if (iy >= 0 && iy < h && ix >= 0 && ix < w &&
+				grid[iy][ix] == d)
+			{
+				x = x + dx[k];
+				y = y + dy[k];           // переходим в €чейку, котора€ на 1 ближе к старту
+				break;
+			}
+		}
+	}
+	//px[0] = ax;
+	//py[0] = ay;                    // теперь px[0..len] и py[0..len] - координаты €чеек пути
+	return true;
+}
+void Level::go_enemy(int x, int y) {
+	std::vector<int> px, py;
+	for (int j = 0; j < enemies.size(); j++) { // сделать чтоб трупы и controlled_undead не ходили
+		if (enemies[j]->get_type() != controlled_undead &&
+			enemies[j]->get_type() != dead) {
+			int en_x = enemies[j]->get_x();
+			int en_y = enemies[j]->get_y();
+			if (lee(en_x, en_y, x, y, px, py) == true) {
+				enemies[j]->set_x(px[1]);
+				enemies[j]->set_y(py[1]);
+				// крч получаем последовательность ходов (из lee вытастикаем, по ссылке)
+				// и собственно ходим (мен€ем координаты врага последовательно х и у)
+				// ходим каждый раз видимо только на одну штуку из этой последовательности
+				// но тогда нам как будто нет смысла запоминать всю последовательность, надо запоминать 
+				// только первый шаг
+			}
+		}
 	}
 }

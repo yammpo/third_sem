@@ -7,6 +7,36 @@ Skill_Table::Skill_Table(int nn) {
 		skills.push_back(skill);
 	}
 }
+Skill_Table& Skill_Table::operator = (const Skill_Table& st) {
+	n = st.n;
+	skills.reserve(n);
+	for (int i = 0; i < n; i++) {
+		Skill *skill = st.skills[i];
+		skills.push_back(skill);
+	}
+	return *this;
+}
+Skill_Table::Skill_Table(const Skill_Table& st) {
+	n = st.n;
+	skills.reserve(n);
+	for (int i = 0; i < n; i++) {
+		Skill *skill = st.skills[i];
+		skills.push_back(skill);
+	}
+}
+Skill_Table& Skill_Table::operator = (Skill_Table&& st) {
+	n = st.n;
+	skills = st.skills;
+	for (int i = 0; i < st.n; i++) delete[] st.skills[i];
+	st.skills.clear();
+	return *this;
+}
+Skill_Table::Skill_Table(Skill_Table&& st) {
+	n = st.n;
+	skills = st.skills;
+	for (int i = 0; i < st.n; i++) delete[] st.skills[i];
+	st.skills.clear();
+}
 void Skill_Table::read_skills(std::string way1, std::string way2, std::string way3) {
 	std::ifstream draining_file(way1);
 	if (!draining_file.is_open()) throw std::runtime_error("File can't open!");
@@ -22,7 +52,8 @@ void Skill_Table::read_skills(std::string way1, std::string way2, std::string wa
 	int number_of_necromancies, number_of_curses;
 	necromancy_file >> number_of_necromancies;
 	curse_file >> number_of_curses;
-	skills.reserve(number_of_necromancies + number_of_curses + 1);//1 for draining
+	n = number_of_necromancies + number_of_curses + 1;//1 for draining
+	skills.reserve(n);
 	int lvl;
 	draining_file >> lvl;
 	Skill *skill;
